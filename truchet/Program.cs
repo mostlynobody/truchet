@@ -10,13 +10,15 @@ namespace Truchet
     {
 
         private static readonly int TILE_SIZE = 360;
-        private static readonly int TILE_ROWS = 10;
+        private static readonly int TILE_ROWS = 20;
         private static readonly int TILE_COLUMNS = 10;
 
         private static readonly int DIVISION_LEVELS = 3;
 
         private static readonly int SEED = 123019491;
-        private static readonly Tileset TILESET = new Tileset(TILE_SIZE, DIVISION_LEVELS, 0xFFFFFF, 0x000000);
+        private static readonly int PRIMARY = 0xFFFFFF;
+        private static readonly int SECONDARY = 0x000000;
+        private static readonly Tileset TILESET = new Tileset(TILE_SIZE, DIVISION_LEVELS, PRIMARY, SECONDARY);
         private static readonly Random RANDOM = new Random(SEED);
 
         static void Main(string[] args)
@@ -45,8 +47,16 @@ namespace Truchet
                 //  if (currentLevel == 1) offset = TILE_SIZE / 4;
                 // else if (currentLevel > 1) offset +=  2;
                 int offset = 0;
-                if (currentLevel > 0)  offset = TILE_SIZE / 4;
-                for (int pow = 1; pow < currentLevel; pow++) offset += offset / 2;
+                if (currentLevel > 0)
+                {
+                    offset = TILE_SIZE / 4;
+                    int temp = offset;
+                    for (int pow = 1; pow < currentLevel; pow++)
+                    {
+                        temp /= 2;
+                        offset += temp;
+                    }
+                }
  
 
                 foreach (Tile t in tiles)
