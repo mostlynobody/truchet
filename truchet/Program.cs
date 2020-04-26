@@ -9,11 +9,14 @@ namespace Truchet
     class Program
     {
 
-        private static readonly int TILE_SIZE = 360;
+        private static readonly int TILE_SIZE = 600;
         private static readonly int TILE_ROWS = 10;
         private static readonly int TILE_COLUMNS = 10;
 
-        private static readonly int DIVISION_LEVELS = 1;
+        private static readonly int DIVISION_LEVELS = 4;
+
+        private static readonly int SEED = 123019491;
+        private static readonly Random RANDOM = new Random(SEED);
 
         static void Main(string[] args)
         {
@@ -31,14 +34,15 @@ namespace Truchet
 
 
             Tileset tileset = new Tileset(TILE_SIZE, DIVISION_LEVELS, 0xFFFFFF, 0x000000);
+            tileset.GenerateDebugImage();
 
             /*
-            for (int currentLevel = 0; currentLevel < SUBDIVISION_LEVELS; currentLevel ++)
+            for (int currentLevel = 0; currentLevel < DIVISION_LEVELS; currentLevel ++)
             {
                 var subTiles = new Queue<Tile>();
                
                 //since the images are actually bigger, they need to be offset by an increasing ammount
-                //the deeper we get into the subdivision levels
+                //the deeper we get into the division levels
                 //each level above 0 gains TileSize/(2^(level+1) offset
                             
                 if(currentLevel == 1)
