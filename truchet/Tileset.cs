@@ -94,7 +94,10 @@ namespace Truchet
         }
 
         /* function to draw all the tiles
-         * This is seperate for readability and debug reasons */
+         * This is seperate for readability and debug reasons
+         * I used to just draw the necessary ones and copy and rotate the rest
+           but that turned out to be a terrible idea because of floating point
+           pixel-level imperfectness */
         private Image DrawTileImage(TileType type, Brush primary, Brush secondary, int tileSize)
         {
             Image i = GetEmptyImage(tileSize * 2);
@@ -110,27 +113,32 @@ namespace Truchet
                     break;
 
                 case TileType.Backslash:
-                    i = DrawTileImage(TileType.Forwardslash, primary, secondary, tileSize);
-                    i.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                    FillWhiteCube(g, tileSize, primary);
+                    bool[] bsBool = { false, true, false, true };
+                    FillCornerBlackPies(g, tileSize, bsBool, secondary);
+                    FillCornerWhiteCircles(g, tileSize, primary);
+                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.Vertical:
                     FillWhiteCube(g, tileSize, primary);
-                    FillBlackQuad(g, tileSize, secondary);
+                    FillVerticalBlackQuad(g, tileSize, secondary);
                     FillCornerWhiteCircles(g, tileSize, primary);
                     FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.Horizontal:
-                    i = DrawTileImage(TileType.Vertical, primary, secondary, tileSize);
-                    i.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                    FillWhiteCube(g, tileSize, primary);
+                    FillHorizontalBlackQuad(g, tileSize, secondary);
+                    FillCornerWhiteCircles(g, tileSize, primary);
+                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.Cross:
                     FillWhiteCube(g, tileSize, primary);
                     bool[] crossBool = { true, true, true, true };
                     FillCornerBlackPies(g, tileSize, crossBool, secondary);
-                    FillBlackQuad(g, tileSize, secondary);
+                    FillVerticalBlackQuad(g, tileSize, secondary);
                     FillCornerWhiteCircles(g, tileSize, primary);
                     FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
@@ -143,49 +151,70 @@ namespace Truchet
 
                 case TileType.Frown_NW:
                     FillWhiteCube(g, tileSize, primary);
-                    bool[] fneBool = { true, false, false, false };
-                    FillCornerBlackPies(g, tileSize, fneBool, secondary);
+                    bool[] fnwBool = { true, false, false, false };
+                    FillCornerBlackPies(g, tileSize, fnwBool, secondary);
                     FillCornerWhiteCircles(g, tileSize, primary);
                     FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.Frown_NE:
-                    i = DrawTileImage(TileType.Frown_NW, primary, secondary, tileSize);
-                    i.RotateFlip(RotateFlipType.Rotate90FlipNone);
-                    break;
-
-                case TileType.Frown_SE:
-                    i = DrawTileImage(TileType.Frown_NW, primary, secondary, tileSize);
-                    i.RotateFlip(RotateFlipType.Rotate180FlipNone);
+                    FillWhiteCube(g, tileSize, primary);
+                    bool[] fneBool = { false, true, false, false };
+                    FillCornerBlackPies(g, tileSize, fneBool, secondary);
+                    FillCornerWhiteCircles(g, tileSize, primary);
+                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.Frown_SW:
-                    i = DrawTileImage(TileType.Frown_NW, primary, secondary, tileSize);
-                    i.RotateFlip(RotateFlipType.Rotate270FlipNone);
+                    FillWhiteCube(g, tileSize, primary);
+                    bool[] fswBool = { false, false, true, false };
+                    FillCornerBlackPies(g, tileSize, fswBool, secondary);
+                    FillCornerWhiteCircles(g, tileSize, primary);
+                    FillMiddleBlackCircles(g, tileSize, secondary);
+                    break;
+
+                case TileType.Frown_SE:
+                    FillWhiteCube(g, tileSize, primary);
+                    bool[] fseBool = { false, false, false, true };
+                    FillCornerBlackPies(g, tileSize, fseBool, secondary);
+                    FillCornerWhiteCircles(g, tileSize, primary);
+                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.T_N:
-                    i = DrawTileImage(TileType.T_E, primary, secondary, tileSize);
-                    i.RotateFlip(RotateFlipType.Rotate270FlipNone);
+                    FillWhiteCube(g, tileSize, primary);
+                    bool[] tn_Bool = { true, true, false, false };
+                    FillCornerBlackPies(g, tileSize, tn_Bool, secondary);
+                    FillHorizontalBlackQuad(g, tileSize, secondary);
+                    FillCornerWhiteCircles(g, tileSize, primary);
+                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.T_E:
                     FillWhiteCube(g, tileSize, primary);
                     bool[] teBool = { false, true, true, false };
                     FillCornerBlackPies(g, tileSize, teBool, secondary);
-                    FillBlackQuad(g, tileSize, secondary);
+                    FillVerticalBlackQuad(g, tileSize, secondary);
                     FillCornerWhiteCircles(g, tileSize, primary);
                     FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.T_S:
-                    i = DrawTileImage(TileType.T_E, primary, secondary, tileSize);
-                    i.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                    FillWhiteCube(g, tileSize, primary);
+                    bool[] ts_Bool = { false, false, true, true };
+                    FillCornerBlackPies(g, tileSize, ts_Bool, secondary);
+                    FillHorizontalBlackQuad(g, tileSize, secondary);
+                    FillCornerWhiteCircles(g, tileSize, primary);
+                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.T_W:
-                    i = DrawTileImage(TileType.T_E, primary, secondary, tileSize);
-                    i.RotateFlip(RotateFlipType.Rotate180FlipNone);
+                    FillWhiteCube(g, tileSize, primary);
+                    bool[] twBool = { true, false, false, true };
+                    FillCornerBlackPies(g, tileSize, twBool, secondary);
+                    FillVerticalBlackQuad(g, tileSize, secondary);
+                    FillCornerWhiteCircles(g, tileSize, primary);
+                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 default:
@@ -205,10 +234,16 @@ namespace Truchet
             g.FillRectangle(primary, tileSize / 2, tileSize / 2, tileSize, tileSize);
         }
 
-        private static void FillBlackQuad(Graphics g, int tileSize, Brush secondary)
+        private static void FillVerticalBlackQuad(Graphics g, int tileSize, Brush secondary)
         {
             int a = tileSize / 2,  b = tileSize / 3;
             g.FillRectangle(secondary, a + b, a, b, tileSize);
+        }
+
+        private static void FillHorizontalBlackQuad(Graphics g, int tileSize, Brush secondary)
+        {
+            int a = tileSize / 2, b = tileSize / 3;
+            g.FillRectangle(secondary, a, a + b, tileSize, b);
         }
 
         //fills the black pies in the corners
