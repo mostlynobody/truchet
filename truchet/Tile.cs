@@ -25,10 +25,11 @@ namespace Truchet
         //Clockwise from NW: NW, NE, SE, SW, 
         public Tile[] container { get; }
 
-        public ContainerTile(int x, int y, int level) 
+        public ContainerTile(int x, int y, int level, Tile[] subdivison) 
             : base(x, y, level, TileType.Container)
         {
-            container = new Tile[4];
+            foreach (Tile t in subdivison) if (t == null) throw new Exception("container has to be filled");
+            container = subdivison;
         }
     }
 

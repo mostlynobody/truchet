@@ -23,7 +23,7 @@ namespace Truchet
         Brush secondaryBrush;
 
         //debug
-        internal static readonly bool SMOOTHING = true;
+        private static readonly bool SMOOTHING = true;
 
 
         public Tileset(int tileSize, int levels, int primaryColor, int secondaryColor)
@@ -37,10 +37,9 @@ namespace Truchet
             tileArray = InitializeTileset();
         }
 
-        public Image GetRandomTile(int level)
-        {
-
-            return null;
+        public Image GetTile(int level, int index)
+        {   
+            return tileArray[level, index];
         }
 
         public void GenerateDebugImage()
@@ -58,7 +57,6 @@ namespace Truchet
             Graphics graphics = Graphics.FromImage(image);
             int x = 0, y = 0, mod = tileSize * 2;
             for(int i = 0; i < levels; i++) {
-                x = 0;
                 for (int j = 0; j < tileCount; j++)
                 {
                     graphics.DrawImage(tileArray[i, j], x, y);
@@ -66,11 +64,12 @@ namespace Truchet
                 }
                 y += mod;
                 mod /= 2;
+                x = 0;
             }
             image.Save("tileset_debug.png", ImageFormat.Png);
         }
 
-        internal Image[,] InitializeTileset()
+        private Image[,] InitializeTileset()
         {
             ///TODO: check if size and levels are initialzied to show exceptions
             Image[,] tileArray = new Image[levels, tileCount];
@@ -96,7 +95,7 @@ namespace Truchet
 
         /* function to draw all the tiles
          * This is seperate for readability and debug reasons */
-        internal Image DrawTileImage(TileType type, Brush primary, Brush secondary, int tileSize)
+        private Image DrawTileImage(TileType type, Brush primary, Brush secondary, int tileSize)
         {
             Image i = GetEmptyImage(tileSize * 2);
             Graphics g = GetGraphicsFromImage(i);
@@ -201,12 +200,12 @@ namespace Truchet
              */
 
         //fills the white cube in the middle
-        internal static void FillWhiteCube(Graphics g, int tileSize, Brush primary)
+        private static void FillWhiteCube(Graphics g, int tileSize, Brush primary)
         {
             g.FillRectangle(primary, tileSize / 2, tileSize / 2, tileSize, tileSize);
         }
 
-        internal static void FillBlackQuad(Graphics g, int tileSize, Brush secondary)
+        private static void FillBlackQuad(Graphics g, int tileSize, Brush secondary)
         {
             int a = tileSize / 2,  b = tileSize / 3;
             g.FillRectangle(secondary, a + b, a, b, tileSize);
@@ -214,7 +213,7 @@ namespace Truchet
 
         //fills the black pies in the corners
         //like everything else in this project, the boolean array represents: NW, NE, SE, SW
-        internal static void FillCornerBlackPies(Graphics g, int tileSize, bool[] corners, Brush secondary)
+        private static void FillCornerBlackPies(Graphics g, int tileSize, bool[] corners, Brush secondary)
         {
             //get the upper upper left left corner, and then for the other corners we just add 1 tile length
             int corner = -tileSize / 6;
@@ -227,7 +226,7 @@ namespace Truchet
   
         }
 
-        internal static void FillCornerWhiteCircles(Graphics g, int tileSize, Brush primary)
+        private static void FillCornerWhiteCircles(Graphics g, int tileSize, Brush primary)
         {
             //get the upper upper left left corner, and then for the other corners we just add 1 tile length
             int corner = tileSize / 6;
@@ -238,7 +237,7 @@ namespace Truchet
             g.FillEllipse(primary, corner + tileSize, corner + tileSize, diameter, diameter);
         }
 
-        internal static void FillMiddleBlackCircles(Graphics g, int tileSize, Brush secondary)
+        private static void FillMiddleBlackCircles(Graphics g, int tileSize, Brush secondary)
         {
             //these circles need a bit more math, but just a bit
             int diameter = (tileSize / 3);
@@ -253,20 +252,20 @@ namespace Truchet
             g.FillEllipse(secondary, c, a, diameter, diameter);
         }
 
-        internal static Image GetEmptyImage(int size)
+        private static Image GetEmptyImage(int size)
         {
             return new Bitmap(size, size, PixelFormat.Format32bppArgb);
         }
 
         //used so smoothingMode doesn't have to be manually set every time
-        internal static Graphics GetGraphicsFromImage(Image i)
+        private static Graphics GetGraphicsFromImage(Image i)
         {
             var g = Graphics.FromImage(i);
             if(SMOOTHING) g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             return g;
         }
 
-        internal static Brush GetBrushFromHexCode(int rgb, int alpha)
+        private static Brush GetBrushFromHexCode(int rgb, int alpha)
         {
             return (Brush)new SolidBrush(Color.FromArgb((alpha << 24) ^ rgb));
         }
