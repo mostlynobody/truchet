@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 
-namespace Truchet
+namespace Truchet.Tiles
 {
 
     abstract class Tile
