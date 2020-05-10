@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics.PerformanceData;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Linq;
 
 namespace Truchet.Tiles
 {   
@@ -12,7 +14,6 @@ namespace Truchet.Tiles
         readonly int levels;
         readonly int tileSize;
         readonly int[][] lookupTable;
-        //how many different tiles there are, minus the container tile
         public readonly int tileCount;
 
         /* using a rectangular array because 
@@ -49,6 +50,7 @@ namespace Truchet.Tiles
               */
 
             tileArray = InitializeTileset();
+            lookupTable = GenerateLookupTable();
         }
 
         public Image GetTile(int level, int index)
@@ -83,18 +85,23 @@ namespace Truchet.Tiles
             image.Save("tileset_debug.png", ImageFormat.Png);
         }
 
+
         private Image[,] InitializeTileset()
         {
             ///TODO: check if size and levels are initialzied to show exceptions
+
             Image[,] tileArray = new Image[levels, tileCount];
             int currentTileSize = tileSize;
             Brush primaryColor = primaryBrush;
             Brush secondaryColor = secondaryBrush;
-            for(int currentLevel = 0; currentLevel < levels; currentLevel++)
+            var tiles = Enum.GetValues(typeof(TileType));
+
+            for (int currentLevel = 0; currentLevel < levels; currentLevel++)
             {
-                for(int i = 0; i < tileCount; i++)
+                int i = 0;
+                foreach(TileType tile in tiles)
                 {
-                    tileArray[currentLevel, i] = DrawTileImage((TileType)i, primaryColor, secondaryColor, currentTileSize);
+                    tileArray[currentLevel, i++] = DrawTileImage(tile, primaryColor, secondaryColor, currentTileSize);
                 }
 
                 currentTileSize /= 2;
@@ -105,6 +112,31 @@ namespace Truchet.Tiles
             }
 
             return tileArray;
+        }
+
+
+        private int[][] GenerateLookupTable()
+        {
+            var directions = Enum.GetValues(typeof(Direction));
+            var tiles = Enum.GetValues(typeof(TileType));
+            int[][] table = new int[directions.Length][];
+            int i = 0;
+            foreach (Direction dir in directions)
+            {
+                int count = 0;
+                foreach (TileType tile in tiles)
+                {
+                    if (((int)tile & (int)dir) != 0) count++;
+                }
+                table[i] = new int[count];
+                count = 0;
+                foreach (TileType tile in tiles)
+                {
+                    if (((int)tile & (int)dir) != 0) table[i][count++] = (int)tile;
+                }
+                i++;
+            }
+            return table;
         }
 
         /* function to draw all the tiles
@@ -321,25 +353,7 @@ namespace Truchet.Tiles
         }
     }
 
-    public enum TileType
-    {
-        Empty   = 0,
-        Vertical = 1,
-        Horizontal = 2,
-        Cross = 3,
-        Forwardslash = 4,
-        Backslash = 5,
-        Frown_NW = 6,
-        Frown_NE = 7,
-        Frown_SE = 8,
-        Frown_SW = 9,
-        T_N = 10,
-        T_E = 11,
-        T_S = 12,
-        T_W = 13
-    }
 
-    //using bit flags as directions. from MSB to LSB: NESW
 
     public enum Direction
     {           // NESW
@@ -349,23 +363,23 @@ namespace Truchet.Tiles
         South = 0b_0100,
         West  = 0b_1000
     }
-    public enum TileType2
-    {
-        Empty           = Direction.None,
-        Vertical        = Direction.North | Direction.South,
-        Horizontal      = Direction.East  | Direction.West,
-        Cross           = Direction.North | Direction.East  | Direction.South | Direction.West,
-        Forwardslash    = Direction.North | Direction.East  | Direction.South | Direction.West,
-        Backslash       = Direction.North | Direction.East  | Direction.South | Direction.West,
-        Frown_NW        = Direction.North | Direction.West, 
-        Frown_NE        = Direction.North | Direction.East, 
-        Frown_SE        = Direction.South | Direction.East, 
-        Frown_SW        = Direction.South | Direction.West, 
-        T_N             = Direction.North | Direction.East  | Direction.West,
-        T_E             = Direction.North | Direction.East  | Direction.South,
-        T_S             = Direction.East  | Direction.South | Direction.West,
-        T_W             = Direction.North | Direction.South | Direction.West
-    }
 
+    public enum TileType
+    {
+        Empty           = (0  << 4) | Direction.None,
+        Vertical        = (1  << 4) | Direction.North | Direction.South,
+        Horizontal      = (2  << 4) | Direction.East  | Direction.West,
+        Cross           = (3  << 4) | Direction.North | Direction.East  | Direction.South | Direction.West,
+        Forwardslash    = (4  << 4) | Direction.North | Direction.East  | Direction.South | Direction.West,
+        Backslash       = (5  << 4) | Direction.North | Direction.East  | Direction.South | Direction.West,
+        Frown_NW        = (6  << 4) | Direction.North | Direction.West, 
+        Frown_NE        = (7  << 4) | Direction.North | Direction.East, 
+        Frown_SE        = (8  << 4) | Direction.South | Direction.East, 
+        Frown_SW        = (9  << 4) | Direction.South | Direction.West, 
+        T_N             = (10 << 4) | Direction.North | Direction.East  | Direction.West,
+        T_E             = (11 << 4) | Direction.North | Direction.East  | Direction.South,
+        T_S             = (12 << 4) | Direction.East  | Direction.South | Direction.West,
+        T_W             = (13 << 4) | Direction.North | Direction.South | Direction.West
+    }
 
 }
