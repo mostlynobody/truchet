@@ -8,8 +8,8 @@ namespace Truchet.Perlin
         public double Y { get; }
         public Vec2(double x, double y)
         {
-            this.X = x;
-            this.Y = y;
+            X = x;
+            Y = y;
         }
 
         public static Vec2 operator +(Vec2 a) => a;
