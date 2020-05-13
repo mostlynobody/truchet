@@ -9,7 +9,7 @@ using System;
 namespace Truchet.Perlin
 {
 
-    internal class PerlinNoise
+    class PerlinNoise
     {
 
         private readonly Random rand;
