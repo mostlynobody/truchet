@@ -128,7 +128,7 @@ namespace Truchet
 
                 foreach (Tile t in tileQueue)
                 {
-                    if (t.IsContainer)
+                    if (t.IsContainer())
                     {
                         var ct = (ContainerTile)t;
                         foreach (Tile child in ct.Container)
