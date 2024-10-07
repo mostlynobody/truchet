@@ -6,45 +6,43 @@ namespace Truchet.Tiles
 
     abstract class Tile
     {
-        public int x { get; }
-        public int y { get; }
-        public int level { get; }
-        public TileType type { get; }
+        public int X { get; }
+        public int Y { get; }
+        public int Level { get; }
+        public bool IsContainer { get; }
 
-        public Tile(int x, int y, int level, TileType type)
+        public Tile(int x, int y, int level, bool isContainer)
         {
-            this.x = x;
-            this.y = y;
-            this.level = level;
-            this.type = type;    
+            this.X = x;
+            this.Y = y;
+            this.Level = level;
+            this.IsContainer = isContainer;
         }
     }
 
     class ContainerTile : Tile
     {
         //Clockwise from NW: NW, NE, SE, SW, 
-        public Tile[] container { get; }
+        public Tile[] Container { get; }
 
         public ContainerTile(int x, int y, int level, Tile[] subdivison) 
-            : base(x, y, level, TileType.Container)
+            : base(x, y, level, true)
         {
             foreach (Tile t in subdivison) if (t == null) throw new Exception("container has to be filled");
-            container = subdivison;
+            Container = subdivison;
         }
     }
 
     class GraphicTile : Tile
     {
         //Reference to the tileset img
-        public Image image { get; }
+        public Image Image { get; }
+        public TileType Type { get; }
         public GraphicTile(int x, int y, int level, TileType type, Image image) 
-            : base(x, y, level, type)
+            : base(x, y, level, false)
         {
-            if(type == TileType.Container)
-            {
-                throw new System.Exception("GraphicTile cannot have TileType Container");
-            }
-            this.image = image;
+            Type = type;
+            Image = image;
         }
     }
 }

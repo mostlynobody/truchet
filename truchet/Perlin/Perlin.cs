@@ -12,9 +12,9 @@ namespace Truchet.Perlin
     internal class PerlinNoise
     {
 
-        private Random rand;
-        private int[] permutation;
-        private Vec2[] gradients;
+        private readonly Random rand;
+        private readonly int[] permutation;
+        private readonly Vec2[] gradients;
 
         private const int SIZE = 256;
 
@@ -63,20 +63,20 @@ namespace Truchet.Perlin
             
             var corners = new[] { 
                 cell,
-                new Vec2(cell.x, cell.y+1), 
-                new Vec2(cell.x+1, cell.y), 
-                new Vec2(cell.x+1, cell.y+1) 
+                new Vec2(cell.X, cell.Y+1), 
+                new Vec2(cell.X+1, cell.Y), 
+                new Vec2(cell.X+1, cell.Y+1) 
             };
 
             double sum = 0;
             foreach (Vec2 v in corners)
             {
                 Vec2 w = origin - v;
-                int i = permutation[(int)v.x % SIZE];
-                i = permutation[(i + (int)v.y) % SIZE];
+                int i = permutation[(int)v.X % SIZE];
+                i = permutation[(i + (int)v.Y) % SIZE];
                 Vec2 grad = gradients[i % SIZE];
 
-                sum += Smoothstep(w.x, w.y) * Vec2.DotProduct(grad, w);
+                sum += Smoothstep(w.X, w.Y) * Vec2.DotProduct(grad, w);
             }
             return Math.Max(Math.Min(sum, 1d), -1d);
         }
