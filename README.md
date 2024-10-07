@@ -5,11 +5,12 @@ Multi-scale Truchet tile pattern generator, based on a paper by Christopher Carl
 [Bridges 2018 paper: Multi-Scale Truchet Patterns](http://archive.bridgesmathart.org/2018/bridges2018-39.html) </br>
 
 Written for Software Development with C#/921CSPTST1K13/2020S
+
 ---
 ![sample image](/sample/sample.png)
 ---
-## TODO
 
+## TODO
 - [x] basic functionality
 - [ ] perlin noise
 - [ ] gradient tiles & color schemes
