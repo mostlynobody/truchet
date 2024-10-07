@@ -22,7 +22,7 @@ namespace Truchet
 
     class ContainerTile : Tile
     {
-        //Clockwise from NE: NE, SE, SW, NW
+        //Clockwise from NW: NW, NE, SE, SW, 
         public Tile[] container { get; }
 
         public ContainerTile(int x, int y, int level) 
