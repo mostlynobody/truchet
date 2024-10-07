@@ -2,7 +2,7 @@
 
 namespace Truchet.Perlin
 {
-    public struct Vec2
+    struct Vec2
     {
         public double X { get; }
         public double Y { get; }
