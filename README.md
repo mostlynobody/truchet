@@ -6,13 +6,16 @@ Multi-scale Truchet tile pattern generator, based on a paper by Christopher Carl
 
 Written for Software Development with C#/921CSPTST1K13/2020S
 
----
-![sample image](/sample/sample.png)
----
 
-## TODO
+#Sample Images:
+
+![sample image_1](/sample/sample1.png)
+![sample image_2](/sample/sample2.png)
+![sample image_3](/sample/sample3.png)
+
+
+## Features
 - [x] basic functionality
 - [x] perlin noise
-- [ ] gradient tiles & color schemes
-- [ ] smart tile connections
-- [ ] GUI? maybe?
+- [x] color schemes
+- [x] command line arguments
