@@ -38,9 +38,9 @@ The following palettes are available:
 ```
 ## Sample Images
 
-![sample image_1](/sample/sample1.png)
-![sample image_2](/sample/sample2.png)
-![sample image_3](/sample/sample3.png)
+![sample1](https://user-images.githubusercontent.com/32034333/81904386-8160fd80-95c3-11ea-9840-5bce8c946883.png)
+![sample2](https://user-images.githubusercontent.com/32034333/81904407-8920a200-95c3-11ea-94e9-94c8e7fbe2ff.png)
+![sample3](https://user-images.githubusercontent.com/32034333/81904423-8cb42900-95c3-11ea-9c69-c644c8e17ad8.png)
 
 
 ## Features
