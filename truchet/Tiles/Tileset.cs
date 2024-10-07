@@ -19,36 +19,22 @@ namespace Truchet.Tiles
         /* using a rectangular array because 
          * it's a neat c# feature to show 
          */
-        Image[,] tileArray;
+        readonly Image[,] tileArray;
+        readonly Palette palette;
 
-        Brush primaryBrush;
-        Brush secondaryBrush;
 
         //debug
-        private const bool SmartConnections = true;
         private const bool Smoothing = true;
 
 
-        public Tileset(int tileSize, int levels, int primaryColor, int secondaryColor)
+        public Tileset(int tileSize, int levels, Palette palette)
         {
             this.tileSize = tileSize;
             this.levels = levels;
+            this.palette = palette;
             tileCount = Enum.GetNames(typeof(TileType)).Length;
-            
 
-
-            primaryBrush = GetBrushFromHexCode(primaryColor, 0xFF);
-            secondaryBrush = GetBrushFromHexCode(secondaryColor, 0xFF);
-
-            //this is temporary
-            /*
-              secondaryBrush = new LinearGradientBrush(
-                  new Point(0, 10), 
-                  new Point(200, 10),
-                  Color.FromArgb(255, 255, 0, 0),   // Opaque red
-                  Color.FromArgb(255, 0, 0, 255));  // Opaque blue
-              */
-
+           
             tileArray = InitializeTileset();
             lookupTable = GenerateLookupTable();
         }
@@ -92,23 +78,23 @@ namespace Truchet.Tiles
 
             Image[,] tileArray = new Image[levels, tileCount];
             int currentTileSize = tileSize;
-            Brush primaryColor = primaryBrush;
-            Brush secondaryColor = secondaryBrush;
             var tiles = Enum.GetValues(typeof(TileType));
+            Brush primary = palette.PrimaryBrush;
+            Brush secondary = palette.SecondaryBrush;
 
             for (int currentLevel = 0; currentLevel < levels; currentLevel++)
             {
                 int i = 0;
                 foreach(TileType tile in tiles)
                 {
-                    tileArray[currentLevel, i++] = DrawTileImage(tile, primaryColor, secondaryColor, currentTileSize);
+                    tileArray[currentLevel, i++] = DrawTileImage(tile, currentTileSize, primary, secondary);
                 }
 
                 currentTileSize /= 2;
                 //switch colors at each subdivision step 
-                var temp = primaryColor;
-                primaryColor = secondaryColor;
-                secondaryColor = temp;
+                var temp = primary;
+                primary = secondary;
+                secondary = temp;
             }
 
             return tileArray;
@@ -144,129 +130,132 @@ namespace Truchet.Tiles
          * I used to just draw the necessary ones and copy and rotate the rest
            but that turned out to be a terrible idea because of floating point
            pixel-level imperfectness */
-        private Image DrawTileImage(TileType type, Brush primary, Brush secondary, int tileSize)
+        private Image DrawTileImage(TileType type, int tileSize, Brush primary, Brush secondary)
         {
             Image i = GetEmptyImage(tileSize * 2);
             Graphics g = GetGraphicsFromImage(i);
-            switch(type)
+
+            //in case it's a gradient brush, we have to rotate the gradient for some tiles.
+            if(palette.GetType().Equals(typeof(LinearGradientPalette)))
+            {
+                float rotation;
+                float scale = (float)tileSize / (float)LinearGradientPalette.GradientBrushSize;
+
+                switch(type)
+                {
+                    case TileType.Empty:
+                    case TileType.Horizontal:
+                    case TileType.T_E:
+                    case TileType.T_W:
+                        rotation = 0;
+                        break;
+
+                    case TileType.T_S:
+                    case TileType.T_N:
+                    case TileType.Vertical:
+                    case TileType.Cross:
+                        rotation = 90;
+                        break;
+
+                    case TileType.Forwardslash:
+                    case TileType.Frown_NW:
+                    case TileType.Frown_SE:
+                        rotation = 45;
+                        break;
+
+                    case TileType.Backslash:
+                    case TileType.Frown_NE:
+                    case TileType.Frown_SW:
+                        rotation = 135;
+                        break;
+
+                    default:
+                        throw new Exception("Not a valid TileType");
+                }
+                var castPalette = (LinearGradientPalette) palette;
+                castPalette.Transform(scale, rotation);
+            }
+            FillWhiteCube(g, tileSize, primary);
+
+            switch (type)
             {
 
                 case TileType.Empty:
-                    FillWhiteCube(g, tileSize, primary);
-                    FillCornerWhiteCircles(g, tileSize, primary);
-                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.Vertical:
-                    FillWhiteCube(g, tileSize, primary);
                     FillVerticalBlackQuad(g, tileSize, secondary);
-                    FillCornerWhiteCircles(g, tileSize, primary);
-                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.Horizontal:
-                    FillWhiteCube(g, tileSize, primary);
                     FillHorizontalBlackQuad(g, tileSize, secondary);
-                    FillCornerWhiteCircles(g, tileSize, primary);
-                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.Cross:
-                    FillWhiteCube(g, tileSize, primary);
                     bool[] crossBool = { true, true, true, true };
                     FillCornerBlackPies(g, tileSize, crossBool, secondary);
                     FillVerticalBlackQuad(g, tileSize, secondary);
-                    FillCornerWhiteCircles(g, tileSize, primary);
-                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.Forwardslash:
-                    FillWhiteCube(g, tileSize, primary);
                     bool[] fwsBool = { true, false, true, false };
                     FillCornerBlackPies(g, tileSize, fwsBool, secondary);
-                    FillCornerWhiteCircles(g, tileSize, primary);
-                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.Backslash:
-                    FillWhiteCube(g, tileSize, primary);
                     bool[] bsBool = { false, true, false, true };
                     FillCornerBlackPies(g, tileSize, bsBool, secondary);
-                    FillCornerWhiteCircles(g, tileSize, primary);
-                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.Frown_NW:
-                    FillWhiteCube(g, tileSize, primary);
                     bool[] fnwBool = { true, false, false, false };
                     FillCornerBlackPies(g, tileSize, fnwBool, secondary);
-                    FillCornerWhiteCircles(g, tileSize, primary);
-                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.Frown_NE:
-                    FillWhiteCube(g, tileSize, primary);
                     bool[] fneBool = { false, true, false, false };
                     FillCornerBlackPies(g, tileSize, fneBool, secondary);
-                    FillCornerWhiteCircles(g, tileSize, primary);
-                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.Frown_SW:
-                    FillWhiteCube(g, tileSize, primary);
                     bool[] fswBool = { false, false, true, false };
                     FillCornerBlackPies(g, tileSize, fswBool, secondary);
-                    FillCornerWhiteCircles(g, tileSize, primary);
-                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.Frown_SE:
-                    FillWhiteCube(g, tileSize, primary);
                     bool[] fseBool = { false, false, false, true };
                     FillCornerBlackPies(g, tileSize, fseBool, secondary);
-                    FillCornerWhiteCircles(g, tileSize, primary);
-                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.T_N:
-                    FillWhiteCube(g, tileSize, primary);
                     bool[] tn_Bool = { true, true, false, false };
                     FillCornerBlackPies(g, tileSize, tn_Bool, secondary);
                     FillHorizontalBlackQuad(g, tileSize, secondary);
-                    FillCornerWhiteCircles(g, tileSize, primary);
-                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.T_E:
-                    FillWhiteCube(g, tileSize, primary);
                     bool[] teBool = { false, true, true, false };
                     FillCornerBlackPies(g, tileSize, teBool, secondary);
                     FillVerticalBlackQuad(g, tileSize, secondary);
-                    FillCornerWhiteCircles(g, tileSize, primary);
-                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.T_S:
-                    FillWhiteCube(g, tileSize, primary);
                     bool[] ts_Bool = { false, false, true, true };
                     FillCornerBlackPies(g, tileSize, ts_Bool, secondary);
                     FillHorizontalBlackQuad(g, tileSize, secondary);
-                    FillCornerWhiteCircles(g, tileSize, primary);
-                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 case TileType.T_W:
-                    FillWhiteCube(g, tileSize, primary);
                     bool[] twBool = { true, false, false, true };
                     FillCornerBlackPies(g, tileSize, twBool, secondary);
                     FillVerticalBlackQuad(g, tileSize, secondary);
-                    FillCornerWhiteCircles(g, tileSize, primary);
-                    FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
                 default:
                     throw new Exception("Not a valid TileType");
             }
+            FillCornerWhiteCircles(g, tileSize, primary);
+            FillMiddleBlackCircles(g, tileSize, secondary);
             return i;
         }
 
@@ -345,11 +334,6 @@ namespace Truchet.Tiles
             var g = Graphics.FromImage(i);
             if(Smoothing) g.SmoothingMode = SmoothingMode.AntiAlias;
             return g;
-        }
-
-        private static Brush GetBrushFromHexCode(int rgb, int alpha)
-        {
-            return new SolidBrush(Color.FromArgb((alpha << 24) ^ rgb));
         }
     }
 

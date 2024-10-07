@@ -1,36 +1,31 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using Truchet.Tiles;
 using Truchet.Perlin;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Truchet
 {
     class Program
     {
         //compile time variables
-        private const int TILE_SIZE = 250;
-        private const int TILE_ROWS = 30;
-        private const int TILE_COLUMNS = 50;
+        private const int TILE_SIZE = 300;
+        private const int TILE_ROWS = 20;
+        private const int TILE_COLUMNS = 20;
 
         private const int DIVISION_LEVELS = 3;
 
-        private const int SEED = 1235346;
-
-        private const int PRIMARY = 0xA6C36F;
-        private const int SECONDARY = 0x335145;
+        private const int SEED = 465622;
 
         private const bool BORDERLESS = true;
 
 
-        private static readonly Tileset TILESET = new Tileset(TILE_SIZE, DIVISION_LEVELS, PRIMARY, SECONDARY);
-        private static readonly Random RANDOM = new Random(SEED);
+        private static readonly Tileset TILESET = new Tileset(TILE_SIZE, DIVISION_LEVELS, Palette.Xiketic);
+        private static readonly Random RANDOM = new Random();
 
 
-        static void Main(string[] args)
+        static void Main()
         {
             // initialize all variables that are not done at compile time;
             int canvasWidth = (TILE_COLUMNS) * TILE_SIZE;
@@ -42,7 +37,6 @@ namespace Truchet
                 canvasHeight += TILE_SIZE;
             }
 
-
             
 
             var noise = NoiseMap.GenerateNoiseMap(RANDOM, canvasWidth / 10, canvasHeight / 10, 2d, 1d, 3);
@@ -50,12 +44,12 @@ namespace Truchet
             GenerateNoiseImage(noise);
             TILESET.GenerateDebugImage();
 
-            Tile[,] tileMatrix = null;
+
             //block matrix for the tiles
-            tileMatrix = CreatePerlinTileMatrix(noise);
+            Tile[,] tileMatrix = CreatePerlinTileMatrix(noise);
             //tileMatrix = createPseudorandomTileMatrix();
 
-            GenerateImage(canvasWidth, canvasWidth, tileMatrix);
+            GenerateImage(canvasWidth, canvasHeight, tileMatrix);
 
 
         }
@@ -93,10 +87,10 @@ namespace Truchet
 
                 foreach (Tile t in tileQueue)
                 {
-                    if (t.isContainer)
+                    if (t.IsContainer)
                     {
                         var ct = (ContainerTile)t;
-                        foreach (Tile child in ct.container)
+                        foreach (Tile child in ct.Container)
                         {
                             subTileQueue.Enqueue(child);
                         }
@@ -104,7 +98,7 @@ namespace Truchet
                     else
                     {
                         var gt = (GraphicTile)t;
-                        grp.DrawImage(gt.image, gt.x + offset, gt.y + offset);
+                        grp.DrawImage(gt.Image, gt.X + offset, gt.Y + offset);
                     }
                 }
                 tileQueue = subTileQueue;
@@ -242,14 +236,6 @@ namespace Truchet
             }
             return t;
         }
-
-        //this may be the worst algorithm i have ever written, but until I come up with something better, it stays
-        //it is based 
-        private static void MatrixFill(int x, int y, int level, Tile[,] TileMatrix)
-        {
-          
-        }
-
 
         /** DEBUG **/
 
