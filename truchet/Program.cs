@@ -9,22 +9,30 @@ namespace Truchet
     class Program
     {
 
-        private static readonly int TILE_SIZE = 360;
-        private static readonly int TILE_ROWS = 20;
-        private static readonly int TILE_COLUMNS = 10;
+        private static readonly int TILE_SIZE = 120;
+        private static readonly int TILE_ROWS = 100;
+        private static readonly int TILE_COLUMNS = 200;
 
-        private static readonly int DIVISION_LEVELS = 3;
+        private static readonly int DIVISION_LEVELS = 2;
 
         private static readonly int SEED = 123019491;
         private static readonly int PRIMARY = 0xFFFFFF;
         private static readonly int SECONDARY = 0x000000;
         private static readonly Tileset TILESET = new Tileset(TILE_SIZE, DIVISION_LEVELS, PRIMARY, SECONDARY);
-        private static readonly Random RANDOM = new Random(SEED);
+        private static readonly Random RANDOM = new Random(1234);
+
+        private static readonly bool BORDERLESS = false;
 
         static void Main(string[] args)
         {
-            int canvas_width = (TILE_COLUMNS + 1) * TILE_SIZE;
-            int canvas_height = (TILE_ROWS + 1) * TILE_SIZE;
+
+            int canvas_width = (TILE_COLUMNS) * TILE_SIZE;
+            int canvas_height = (TILE_ROWS) * TILE_SIZE;
+            if(!BORDERLESS)
+            {
+                canvas_width += TILE_SIZE;
+                canvas_height += TILE_SIZE;
+            }
 
             Image canvas = new Bitmap(canvas_width, canvas_height, PixelFormat.Format32bppArgb);
             Graphics grp = Graphics.FromImage(canvas);
@@ -46,10 +54,12 @@ namespace Truchet
                 //each level above 0 gains TileSize/(2^(level+1) offset
                 //  if (currentLevel == 1) offset = TILE_SIZE / 4;
                 // else if (currentLevel > 1) offset +=  2;
+                //offset is also used if borderlesss is on.
                 int offset = 0;
+                if (BORDERLESS) offset -= TILE_SIZE / 2;
                 if (currentLevel > 0)
                 {
-                    offset = TILE_SIZE / 4;
+                    offset += TILE_SIZE / 4;
                     int temp = offset;
                     for (int pow = 1; pow < currentLevel; pow++)
                     {
