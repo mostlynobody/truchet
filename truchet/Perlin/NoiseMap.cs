@@ -17,8 +17,6 @@ namespace Truchet.Perlin
             /// track min and max noise value. Used to normalize the result to the 0 to 1.0 range.
             double min = double.MaxValue;
             double max = double.MinValue;
-            
-
 
             for (var octave = 0; octave < octaves; octave++)
             {
