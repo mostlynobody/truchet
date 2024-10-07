@@ -8,8 +8,6 @@ namespace Truchet.Tiles
     abstract class Palette
     {
 
-
-
         public static List<Palette> PaletteList { get; }
        
         public Brush PrimaryBrush { get; }
@@ -99,6 +97,4 @@ namespace Truchet.Tiles
             isTransformed = false;
         }
     }
-
-
 }
