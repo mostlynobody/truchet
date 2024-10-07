@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Diagnostics.PerformanceData;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.Linq;
 
 namespace Truchet.Tiles
 {   
@@ -36,7 +34,7 @@ namespace Truchet.Tiles
 
            
             tileArray = InitializeTileset();
-            lookupTable = GenerateLookupTable();
+            //lookupTable = GenerateLookupTable();
         }
 
         public Image GetTile(int level, int index)
@@ -74,8 +72,6 @@ namespace Truchet.Tiles
 
         private Image[,] InitializeTileset()
         {
-            ///TODO: check if size and levels are initialzied to show exceptions
-
             Image[,] tileArray = new Image[levels, tileCount];
             int currentTileSize = tileSize;
             var tiles = Enum.GetValues(typeof(TileType));
@@ -337,8 +333,6 @@ namespace Truchet.Tiles
         }
     }
 
-
-
     public enum Direction
     {           // NESW
         None  = 0b_0000,
@@ -365,5 +359,4 @@ namespace Truchet.Tiles
         T_S             = (12 << 4) | Direction.East  | Direction.South | Direction.West,
         T_W             = (13 << 4) | Direction.North | Direction.South | Direction.West
     }
-
 }
