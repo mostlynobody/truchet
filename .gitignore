@@ -352,3 +352,5 @@ MigrationBackup/
 
 truchet.csproj
 truchet.sln
+/truchet/App.config
+/truchet/Properties
