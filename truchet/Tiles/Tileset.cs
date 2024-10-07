@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 
-namespace Truchet
+namespace Truchet.Tiles
 {   
 
     class Tileset
@@ -12,7 +13,7 @@ namespace Truchet
         readonly int tileSize;
 
         //how many different tiles there are, minus the container tile
-        readonly private int tileCount;
+        public readonly int tileCount;
 
         /* using a rectangular array because 
          * it's a neat c# feature to show 
@@ -33,6 +34,15 @@ namespace Truchet
             tileCount = Enum.GetNames(typeof(TileType)).Length - 1;
             primaryBrush = GetBrushFromHexCode(primaryColor, 0xFF);
             secondaryBrush = GetBrushFromHexCode(secondaryColor, 0xFF);
+
+            //this is temporary
+            /*
+              secondaryBrush = new LinearGradientBrush(
+                  new Point(0, 10), 
+                  new Point(200, 10),
+                  Color.FromArgb(255, 255, 0, 0),   // Opaque red
+                  Color.FromArgb(255, 0, 0, 255));  // Opaque blue
+              */
 
             tileArray = InitializeTileset();
         }
@@ -104,18 +114,9 @@ namespace Truchet
             Graphics g = GetGraphicsFromImage(i);
             switch(type)
             {
-                case TileType.Forwardslash:
-                    FillWhiteCube(g, tileSize, primary);
-                    bool[] fwsBool = { true, false, true, false };
-                    FillCornerBlackPies(g, tileSize, fwsBool, secondary);
-                    FillCornerWhiteCircles(g, tileSize, primary);
-                    FillMiddleBlackCircles(g, tileSize, secondary);
-                    break;
 
-                case TileType.Backslash:
+                case TileType.Empty:
                     FillWhiteCube(g, tileSize, primary);
-                    bool[] bsBool = { false, true, false, true };
-                    FillCornerBlackPies(g, tileSize, bsBool, secondary);
                     FillCornerWhiteCircles(g, tileSize, primary);
                     FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
@@ -143,8 +144,18 @@ namespace Truchet
                     FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
 
-                case TileType.Empty:
+                case TileType.Forwardslash:
                     FillWhiteCube(g, tileSize, primary);
+                    bool[] fwsBool = { true, false, true, false };
+                    FillCornerBlackPies(g, tileSize, fwsBool, secondary);
+                    FillCornerWhiteCircles(g, tileSize, primary);
+                    FillMiddleBlackCircles(g, tileSize, secondary);
+                    break;
+
+                case TileType.Backslash:
+                    FillWhiteCube(g, tileSize, primary);
+                    bool[] bsBool = { false, true, false, true };
+                    FillCornerBlackPies(g, tileSize, bsBool, secondary);
                     FillCornerWhiteCircles(g, tileSize, primary);
                     FillMiddleBlackCircles(g, tileSize, secondary);
                     break;
@@ -302,18 +313,18 @@ namespace Truchet
 
         private static Brush GetBrushFromHexCode(int rgb, int alpha)
         {
-            return (Brush)new SolidBrush(Color.FromArgb((alpha << 24) ^ rgb));
+            return new SolidBrush(Color.FromArgb((alpha << 24) ^ rgb));
         }
     }
 
     public enum TileType
     {
-        Forwardslash = 0,
-        Backslash = 1,
-        Vertical = 2,
-        Horizontal = 3,
-        Cross = 4,
-        Empty = 5,
+        Empty = 0,
+        Vertical = 1,
+        Horizontal = 2,
+        Cross = 3,
+        Forwardslash = 4,
+        Backslash = 5,
         Frown_NW = 6,
         Frown_NE = 7,
         Frown_SE = 8,
