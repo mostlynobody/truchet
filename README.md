@@ -12,7 +12,7 @@ Written for Software Development with C#/921CSPTST1K13/2020S
 
 ## TODO
 - [x] basic functionality
-- [ ] perlin noise
+- [x] perlin noise
 - [ ] gradient tiles & color schemes
 - [ ] smart tile connections
 - [ ] GUI? maybe?
