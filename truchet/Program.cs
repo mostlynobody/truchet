@@ -12,19 +12,52 @@ namespace Truchet
         static Parameters parameters;
         static Random random;
         static Tileset tileset;
-        static List<Palette> palleteList;
         static void Main(string[] args)
         {
             parameters = new Parameters(args);
-            random = new Random(parameters.Seed);
-            palleteList = InitializePaletteList();
-            tileset = new Tileset(parameters.TileSize, parameters.DivisionLevels, palleteList[parameters.Palette]);
-
+            //print error codes
+            if(parameters.ErrorCode != 0)
+            {
+                switch(parameters.ErrorCode)
+                {
+                    case 1:
+                        Console.WriteLine("Error: Invalid program arguments.");
+                        break;
+                    case 2:
+                        Console.WriteLine("Error: Row count has to be positive.");
+                        break;
+                    case 3:
+                        Console.WriteLine("Error: Column count has to be positive.");
+                        break;
+                    case 4:
+                        Console.WriteLine("Error: level count has to be positive.");
+                        break;
+                    case 5:
+                        Console.WriteLine("Error: Output image would be too tall: reduce number of rows or tile size.");
+                        break;
+                    case 6:
+                        Console.WriteLine("Error: Output image would be too wide: reduce number of columns or tile size.");
+                        break;
+                    case 7:
+                        Console.WriteLine("Error: Too many subdivision levels: reduce level count or increase tile size.");
+                        break;
+                    case 8:
+                        Console.WriteLine("Error: Invalid palette id specified.");
+                        break;
+                }
+                return;
+            }
+            //if -h is given as a program argument
             if (parameters.DisplayHelp)
             {
                 PrintHelp();
                 return;
             }
+
+            //actual program starts here
+
+            random = new Random(parameters.Seed);
+            tileset = new Tileset(parameters.TileSize, parameters.DivisionLevels, Palette.PaletteList[parameters.PaletteID]);
 
             int canvasWidth = (parameters.ColumnCount) * parameters.TileSize;
             int canvasHeight = (parameters.RowCount) * parameters.TileSize;
@@ -198,30 +231,16 @@ namespace Truchet
             return t;
         }
 
-        private static List<Palette> InitializePaletteList()
-        {
-            List<Palette> PaletteList = new List<Palette>
-            {
-                new SolidColorPalette(0xFFFFFF, 0x000000, "Monochrome"),
-                new SolidColorPalette(0x05668D, 0xF0F3BD, "Sapphire"),
-                new SolidColorPalette(0xE63946, 0x1D3557, "Imperial"),
-                new SolidColorPalette(0x2D00F7, 0xE500A4, "Deep"),
-                new SolidColorPalette(0xFFCDB2, 0x6D6875, "Apricot"),
-                new SolidColorPalette(0x03071E, 0xFFBA08, "Xiketic"),
-                new SolidColorPalette(0x3D315B, 0xF8F991, "Canary"),
-                new SolidColorPalette(0x034732, 0xc1292e, "Meadow")
-            };
-            return PaletteList;
-        }
+       
 
         /** DEBUG **/
 
         private static void PrintHelp()
         {
             System.Console.Write(
-                "Syntax: Truchet [-h] [-d] [-r] [-p] [-b]\n" +
-                "                [--Palette id] [-l count] [-s seed]\n" +
-                "                [-rc count] [-cc count] [-ts size]\n" +
+                "Syntax: truchet.exe [-h] [-d] [-r] [-p] [-b]\n" +
+                "                    [--Palette id] [-l count] [-s seed]\n" +
+                "                    [-rc count] [-cc count] [-ts size]\n" +
                 "\n" +
                 "Options:\n" +
                 "   -h              Displays this help screen.\n" +
@@ -229,17 +248,17 @@ namespace Truchet
                 "   -r              Sets generating method to random. (default: off)\n" +
                 "   -p              Sets generating method to perlin noise.(default: on)\n" +
                 "   -b              Turns on border cropping. (default: off)\n" +
-                "   --Palette id    Specifies a palette. (default: Monochrome)\n" +
+                "   --Palette id    Specifies a palette by id. (default: Monochrome)\n" +
                 "   -l count        Specifies the number of subdivision levels. (default: 3)\n" +
-                "   -s seed         Specifies a seed. (default: random seed)\n" +
+                "   -s seed         Specifies a seed (INT32). (default: random seed)\n" +
                 "   -rc count       Specifies the amount of rows. (default: 10)\n" +
                 "   -cc count       Specifies the amount of columns. (default: 10)\n" +
                 "   -ts size        Specifies the tile size. (default: 300)\n" +
                 "\n" +
                 "The following palettes are available:\n");
-            for(int i = 0; i < palleteList.Count; i++)
+            for(int i = 0; i < Palette.PaletteList.Count; i++)
             {
-                Console.WriteLine("   " + i + ": " + palleteList[i].Name);
+                Console.WriteLine("   " + i + ": " + Palette.PaletteList[i].Name);
             }
         }
 
@@ -280,7 +299,9 @@ namespace Truchet
         public int ColumnCount { get; }
         public int DivisionLevels { get; }
         public int Seed { get; }
-        public int Palette { get; }
+        public int PaletteID { get; }
+
+        public int ErrorCode { get; }
 
         public Parameters(string[] args)
         {
@@ -293,50 +314,73 @@ namespace Truchet
             RowCount = 10;
             ColumnCount = 10;
             DivisionLevels = 3;
-            Palette = 0;
+            PaletteID = 0;
             Seed = (int)DateTime.Now.TimeOfDay.TotalMilliseconds;
+            ErrorCode = 0;
 
             for (int i = 0; i < args.Length; i++)
             {
-                switch (args[i])
+                try
                 {
-                    //if -h is anywhere in the parameters, the rest of the params is skipped and help is displayed
-                    case "-h":
-                        DisplayHelp = true;
-                        i = args.Length;
-                        break;
-                    case "-d":
-                        Debug = true;
-                        break;
-                    case "--Palette":
-                        Palette = int.Parse(args[++i]);
-                        break;
-                    case "-r":
-                        Perlin = false;
-                        break;
-                    case "-p":
-                        Perlin = true;
-                        break;
-                    case "-b":
-                        Borderless = true;
-                        break;
-                    case "-rc":
-                        RowCount = int.Parse(args[++i]);
-                        break;
-                    case "-cc":
-                        ColumnCount = int.Parse(args[++i]);
-                        break;
-                    case "-ts":
-                        TileSize = int.Parse(args[++i]);
-                        break;
-                    case "-l":
-                        DivisionLevels = int.Parse(args[++i]);
-                        break;
-                    case "-s":
-                        DivisionLevels = int.Parse(args[++i]);
-                        break;
+                    switch (args[i])
+                    {
+                        //if -h is anywhere in the parameters, the rest of the params is skipped and help is displayed
+                        case "-h":
+                            DisplayHelp = true;
+                            i = args.Length;
+                            break;
+                        case "-d":
+                            Debug = true;
+                            break;
+                        case "--Palette":
+                            PaletteID = int.Parse(args[++i]);
+                            break;
+                        case "-r":
+                            Perlin = false;
+                            break;
+                        case "-p":
+                            Perlin = true;
+                            break;
+                        case "-b":
+                            Borderless = true;
+                            break;
+                        case "-rc":
+                            RowCount = int.Parse(args[++i]);
+                            break;
+                        case "-cc":
+                            ColumnCount = int.Parse(args[++i]);
+                            break;
+                        case "-ts":
+                            TileSize = int.Parse(args[++i]);
+                            break;
+                        case "-l":
+                            DivisionLevels = int.Parse(args[++i]);
+                            break;
+                        case "-s":
+                            DivisionLevels = int.Parse(args[++i]);
+                            break;
+                        default:
+                            ErrorCode = 1;
+                            i = args.Length;
+                            break;
+                    }
                 }
+                catch(Exception e)
+                {
+                    ErrorCode = 1;
+                    return;
+                }
+               
             }
+
+            //error checking
+            if (RowCount <= 0) ErrorCode = 2;
+            else if (ColumnCount <= 0) ErrorCode = 3;
+            else if (DivisionLevels <= 0) ErrorCode = 4;
+            else if (RowCount * TileSize > 21500 - TileSize) ErrorCode = 5;
+            else if (ColumnCount * TileSize > 21500 - TileSize) ErrorCode = 6;
+            else if (TileSize / Math.Pow(2.0d, DivisionLevels) < 2.0d) ErrorCode = 7;
+            else if (PaletteID > Palette.PaletteList.Count || PaletteID < 0) ErrorCode = 8;
         }
     }
 }
