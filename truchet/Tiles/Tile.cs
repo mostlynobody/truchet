@@ -9,14 +9,14 @@ namespace Truchet.Tiles
         public int x { get; }
         public int y { get; }
         public int level { get; }
-        public TileType type { get; }
+        public bool isContainer { get; }
 
-        public Tile(int x, int y, int level, TileType type)
+        public Tile(int x, int y, int level, bool isContainer)
         {
             this.x = x;
             this.y = y;
             this.level = level;
-            this.type = type;    
+            this.isContainer = isContainer;
         }
     }
 
@@ -26,7 +26,7 @@ namespace Truchet.Tiles
         public Tile[] container { get; }
 
         public ContainerTile(int x, int y, int level, Tile[] subdivison) 
-            : base(x, y, level, TileType.Container)
+            : base(x, y, level, true)
         {
             foreach (Tile t in subdivison) if (t == null) throw new Exception("container has to be filled");
             container = subdivison;
@@ -37,13 +37,11 @@ namespace Truchet.Tiles
     {
         //Reference to the tileset img
         public Image image { get; }
+        public TileType type { get; }
         public GraphicTile(int x, int y, int level, TileType type, Image image) 
-            : base(x, y, level, type)
+            : base(x, y, level, false)
         {
-            if(type == TileType.Container)
-            {
-                throw new System.Exception("GraphicTile cannot have TileType Container");
-            }
+            this.type = type;
             this.image = image;
         }
     }

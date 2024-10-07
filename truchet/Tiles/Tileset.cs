@@ -11,7 +11,7 @@ namespace Truchet.Tiles
 
         readonly int levels;
         readonly int tileSize;
-
+        readonly int[][] lookupTable;
         //how many different tiles there are, minus the container tile
         public readonly int tileCount;
 
@@ -24,14 +24,18 @@ namespace Truchet.Tiles
         Brush secondaryBrush;
 
         //debug
-        private static readonly bool SMOOTHING = true;
+        private const bool SmartConnections = true;
+        private const bool Smoothing = true;
 
 
         public Tileset(int tileSize, int levels, int primaryColor, int secondaryColor)
         {
             this.tileSize = tileSize;
             this.levels = levels;
-            tileCount = Enum.GetNames(typeof(TileType)).Length - 1;
+            tileCount = Enum.GetNames(typeof(TileType)).Length;
+            
+
+
             primaryBrush = GetBrushFromHexCode(primaryColor, 0xFF);
             secondaryBrush = GetBrushFromHexCode(secondaryColor, 0xFF);
 
@@ -307,7 +311,7 @@ namespace Truchet.Tiles
         private static Graphics GetGraphicsFromImage(Image i)
         {
             var g = Graphics.FromImage(i);
-            if(SMOOTHING) g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            if(Smoothing) g.SmoothingMode = SmoothingMode.AntiAlias;
             return g;
         }
 
@@ -319,7 +323,7 @@ namespace Truchet.Tiles
 
     public enum TileType
     {
-        Empty = 0,
+        Empty   = 0,
         Vertical = 1,
         Horizontal = 2,
         Cross = 3,
@@ -332,7 +336,36 @@ namespace Truchet.Tiles
         T_N = 10,
         T_E = 11,
         T_S = 12,
-        T_W = 13,
-        Container = 14
+        T_W = 13
     }
+
+    //using bit flags as directions. from MSB to LSB: NESW
+
+    public enum Direction
+    {           // NESW
+        None  = 0b_0000,
+        North = 0b_0001,
+        East  = 0b_0010,
+        South = 0b_0100,
+        West  = 0b_1000
+    }
+    public enum TileType2
+    {
+        Empty           = Direction.None,
+        Vertical        = Direction.North | Direction.South,
+        Horizontal      = Direction.East  | Direction.West,
+        Cross           = Direction.North | Direction.East  | Direction.South | Direction.West,
+        Forwardslash    = Direction.North | Direction.East  | Direction.South | Direction.West,
+        Backslash       = Direction.North | Direction.East  | Direction.South | Direction.West,
+        Frown_NW        = Direction.North | Direction.West, 
+        Frown_NE        = Direction.North | Direction.East, 
+        Frown_SE        = Direction.South | Direction.East, 
+        Frown_SW        = Direction.South | Direction.West, 
+        T_N             = Direction.North | Direction.East  | Direction.West,
+        T_E             = Direction.North | Direction.East  | Direction.South,
+        T_S             = Direction.East  | Direction.South | Direction.West,
+        T_W             = Direction.North | Direction.South | Direction.West
+    }
+
+
 }

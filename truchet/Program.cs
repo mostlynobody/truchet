@@ -11,13 +11,13 @@ namespace Truchet
     class Program
     {
         //compile time variables
-        private const int TILE_SIZE = 200;
-        private const int TILE_ROWS = 20;
-        private const int TILE_COLUMNS = 40;
+        private const int TILE_SIZE = 250;
+        private const int TILE_ROWS = 30;
+        private const int TILE_COLUMNS = 50;
 
         private const int DIVISION_LEVELS = 3;
 
-        private const int SEED = 234243;
+        private const int SEED = 1235346;
 
         private const int PRIMARY = 0xA6C36F;
         private const int SECONDARY = 0x335145;
@@ -53,12 +53,14 @@ namespace Truchet
             generateNoiseDebugImage(noise);
             TILESET.GenerateDebugImage();
 
-           
+            Tile[,] tileMatrix = null;
             //block matrix for the tiles
-            Tile[,] tileMatrix = createPerlinTileMatrix(noise);
+            tileMatrix = createPerlinTileMatrix(noise);
+            //tileMatrix = createPseudorandomTileMatrix();
 
             var tileQueue = new Queue<Tile>();
             foreach (Tile t in tileMatrix) tileQueue.Enqueue(t);
+
              
             for (int currentLevel = 0; currentLevel < DIVISION_LEVELS; currentLevel ++)
             {
@@ -87,7 +89,7 @@ namespace Truchet
 
                 foreach (Tile t in tileQueue)
                 {
-                    if(t.type == TileType.Container) {
+                    if(t.isContainer) {
                         var ct = (ContainerTile)t;
                         foreach(Tile child in ct.container)
                         {
@@ -159,15 +161,13 @@ namespace Truchet
         private static Tile generateRandomPerlinTile(int level, int x, int y, double[,] noise)
         {
             Tile t;
-            //NOISE MAL ZEHN DU WEI?T DEI NOISE IS UM EIN FAKTOR 10 KLEINER ALS DIE EIGENTLICHE DINGS ALSO DU WEIßt WAS ICH MEINE OK
-            // OK DANN IST JA GUT :)))
             double noiseValue = noise[x / 10, y / 10];
 
             //DEBUG
             double limit1 = 0.5d;
-            double risinglimit = 0.10;
+            double risinglimit = 0.05d;
             //LIL BIT OF RANDOMNESS
-            noiseValue += (RANDOM.NextDouble() - 0.5) / 3;
+            noiseValue += (RANDOM.NextDouble() - 0.5) / 5;
 
             bool isContainer = false;
             if (noiseValue < limit1 - ((level-1) * (risinglimit))) isContainer = true;
