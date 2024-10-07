@@ -6,7 +6,7 @@ Multi-scale Truchet tile pattern generator, based on a paper by Christopher Carl
 
 Written for Software Development with C#/921CSPTST1K13/2020S
 
-# Help:
+# Help
 Standard functionality via CLI.
 ```
 Syntax: truchet.exe [-h] [-d] [-r] [-p] [-b]
@@ -36,7 +36,7 @@ The following palettes are available:
    6: Canary
    7: Meadow
 ```
-## Sample Images:
+## Sample Images
 
 ![sample image_1](/sample/sample1.png)
 ![sample image_2](/sample/sample2.png)
