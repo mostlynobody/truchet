@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 
 namespace Truchet.Tiles
@@ -6,9 +7,13 @@ namespace Truchet.Tiles
 
     abstract class Palette
     {
+
+
+
+        public static List<Palette> PaletteList { get; }
+       
         public Brush PrimaryBrush { get; }
         public Brush SecondaryBrush { get; }
-        
         public string Name { get; }
 
         public Palette(Brush primary, Brush secondary, string name)
@@ -16,6 +21,22 @@ namespace Truchet.Tiles
             PrimaryBrush = primary;
             SecondaryBrush = secondary;
             Name = name;
+        }
+
+        /** used to initialize the palette list **/
+        static Palette()
+        {
+            PaletteList = new List<Palette>
+            {
+                new SolidColorPalette(0xFFFFFF, 0x000000, "Monochrome"),
+                new SolidColorPalette(0x05668D, 0xF0F3BD, "Sapphire"),
+                new SolidColorPalette(0xE63946, 0x1D3557, "Imperial"),
+                new SolidColorPalette(0x2D00F7, 0xE500A4, "Deep"),
+                new SolidColorPalette(0xFFCDB2, 0x6D6875, "Apricot"),
+                new SolidColorPalette(0x03071E, 0xFFBA08, "Xiketic"),
+                new SolidColorPalette(0x3D315B, 0xF8F991, "Canary"),
+                new SolidColorPalette(0x034732, 0xc1292e, "Meadow")
+            };
         }
     }
 
